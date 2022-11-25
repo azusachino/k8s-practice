@@ -1,0 +1,15 @@
+version: '3'
+
+env:
+  GREETING: Hey, there!
+
+dotenv: ['.env']
+
+tasks:
+  build:
+    cmds:
+      - go build
+  hello:
+    cmds:
+      - echo $GREETING
+    slient: true

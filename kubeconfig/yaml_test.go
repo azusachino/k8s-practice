@@ -44,3 +44,23 @@ func TestYaml(t *testing.T) {
 	}
 	fmt.Println(ver.String())
 }
+
+func TestCtx(t *testing.T) {
+	home, err := os.UserHomeDir()
+
+	if err != nil {
+		panic(err.Error())
+	}
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: path.Join(home, ".kube/config")},
+		&clientcmd.ConfigOverrides{},
+	).RawConfig()
+
+	if err != nil {
+		panic(err.Error())
+	}
+
+	for name := range config.Contexts {
+		fmt.Printf("Found context %s\n", name)
+	}
+}
