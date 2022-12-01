@@ -1,56 +1,49 @@
 package main
 
 import (
-	"context"
 	"fmt"
-	"path"
 
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/labels"
-	"k8s.io/apimachinery/pkg/selection"
-	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/client-go/util/homedir"
+	"github.com/spf13/cobra"
+	"k8s.io/cli-runtime/pkg/genericclioptions"
+	"k8s.io/cli-runtime/pkg/resource"
+	"k8s.io/client-go/kubernetes/scheme"
 )
 
 func main() {
-	// 模拟目标 Objects 的标签
-	lbls := labels.Set{"node": "minikube", "app": "mysql"}
+	// Already familiar stuff...
+	configFlags := genericclioptions.NewConfigFlags(true)
 
-	selector := labels.NewSelector()
+	cmd := &cobra.Command{
+		Use:  "kubectl (even closer to it this time)",
+		Args: cobra.MinimumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
 
-	// 选择器
-	req, err := labels.NewRequirement("app", selection.Equals, []string{"mysql"})
+			// Our hero - The Resource Builder.
+			builder := resource.NewBuilder(configFlags)
 
-	if err != nil {
-		panic(err.Error())
+			namespace := ""
+			if configFlags.Namespace != nil {
+				namespace = *configFlags.Namespace
+			}
+
+			// Let the Builder do all the heavy-lifting.
+			obj, _ := builder.
+				// Scheme teaches the Builder how to instantiate resources by names.
+				WithScheme(scheme.Scheme, scheme.Scheme.PrioritizedVersionsAllGroups()...).
+				// Where to look up.
+				NamespaceParam(namespace).
+				// What to look for.
+				ResourceTypeOrNameArgs(true, args...).
+				// Do look up, please.
+				Do().
+				// Convert the result to a runtime.Object
+				Object()
+
+			fmt.Println(obj)
+		},
 	}
-	selector = selector.Add(*req)
 
-	if selector.Matches(lbls) {
-		fmt.Printf("Selector %v matched label set %v\n", selector, lbls)
-	} else {
-		panic("Selector should have matched labels")
-	}
+	configFlags.AddFlags(cmd.PersistentFlags())
 
-	otherSelector, err := labels.Parse("app=mysql")
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if otherSelector.Matches(lbls) {
-		fmt.Printf("Selector %v matched label set %v\n", otherSelector, lbls)
-	} else {
-		panic("Selector should have matched labels")
-	}
-
-	// list pods
-	home := homedir.HomeDir()
-	config, _ := clientcmd.BuildConfigFromFlags("", path.Join(home, ".kube/config"))
-	client, _ := kubernetes.NewForConfig(config)
-
-	// access the api to list pods
-	pods, _ := client.CoreV1().Pods("default").List(context.Background(), v1.ListOptions{})
-
-	fmt.Printf("Pods count: %d\n", len(pods.Items))
+	_ = cmd.Execute()
 }
