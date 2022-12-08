@@ -1,7 +1,7 @@
 version: '3'
 
 env:
-  GREETING: Hey, there!
+  GREETING: "Hey, there!"
 
 dotenv: ['.env']
 
@@ -12,4 +12,4 @@ tasks:
   hello:
     cmds:
       - echo $GREETING
-    slient: true
+    # slient: true
