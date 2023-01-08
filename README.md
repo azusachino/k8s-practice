@@ -49,7 +49,11 @@ Most of the Kubernetes API resources represent Objects. Unlike other forms of re
 
 ```sh
 kubectl get --raw /api/v1/namespaces/kube-system/pods/etcd-minikube | python3 -m json.tool
-``
+```
+
+### The Helper
+
+By using `kubectl explain`, we can understand structure of common Objects.
 
 ## References
 

@@ -1,0 +1,23 @@
+### Instruction k proxy --port=8080 &
+
+
+### GET k8s-api
+GET http://localhost:8080/api
+
+```
+{
+  "kind": "APIVersions",
+  "versions": [
+    "v1"
+  ],
+  "serverAddressByClientCIDRs": [
+    {
+      "clientCIDR": "0.0.0.0/0",
+      "serverAddress": "192.168.49.2:8443"
+    }
+  ]
+}
+```
+
+### Get k8s-apis
+GET http://localhost:8080/apis

@@ -1,1 +1,4 @@
 vendor/
+
+# compiled file
+k8s

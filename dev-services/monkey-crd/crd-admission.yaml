@@ -1,0 +1,30 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: my-validating-webhook-config
+webhooks:
+  - name: hooks1.k8s.azusachino.cn
+    admissionReviewVersions:
+      - v1
+    # what endpoint to call
+    clientConfig:
+      # either a Kubernetes service
+      service:
+        name: my-webhook-service
+        namespace: my-namespace
+        path: /validate-monkey
+      # ...or a regular URL (beware, it must use HTTPS)
+      # url: https://my-webhook-service.org/validate-monkey
+    rules:
+      # what API resource to react on
+      - apiGroups:
+          - /apis/k8s.azusachino.cn
+        apiVersions:
+          - v1
+        resources:
+          - monkeys
+        # what operations on the resource to react on
+        operations:
+          - CREATE
+          - UPDATE
+    sideEffects: None # Sweet!

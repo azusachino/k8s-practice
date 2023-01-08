@@ -1,0 +1,8 @@
+apiVersion: k8s.azusachino.cn/v1
+kind: Monkey
+metadata:
+  name: kong
+  namespace: default
+spec:
+  count: 1
+  selector: "app=foo"
